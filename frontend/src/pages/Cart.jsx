@@ -5,13 +5,29 @@ import "../styles/cart.css";
 
 const Cart = () => {
   const [data, setData] = useState(getItem("carrinhoYt") || []);
-  const entrega = 0;
+  const [cep, setCep] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [rua, setRua] = useState("");
+  const [custo, setCusto] = useState(0);
   const subTotal = data.reduce((acc, cur) => acc + cur.price, 0);
 
   const removeItem = (id) => {
     const arrFilter = data.filter((item) => item.id !== id);
     setData(arrFilter);
     setItem("carrinhoYt", arrFilter);
+  };
+
+  const checkCep = () => {
+    const cepAtt = cep.replace(/\D/g, "");
+    fetch(`https://viacep.com.br/ws/${cepAtt}/json/`)
+      .then((res) => res.json())
+      .then((data) => {
+        setRua(data.logradouro);
+        setBairro(data.bairro);
+        setCidade(data.localidade);
+        setCusto(50);
+      });
   };
 
   return (
@@ -57,8 +73,31 @@ const Cart = () => {
           <span>R$ {subTotal}</span>
         </div>
         <div className="summary-item">
+          <label htmlFor="cep">Cep:</label>
+          <input
+            type="text"
+            name="cep"
+            id="cep"
+            defaultValue={cep}
+            onChange={(e) => setCep(e.target.value)}
+            onBlur={checkCep}
+          />
+        </div>
+        <div className="summary-item">
+          <label htmlFor="cidade">Cidade:</label>
+          <input type="text" name="cidade" id="cidade" defaultValue={cidade} />
+        </div>
+        <div className="summary-item">
+          <label htmlFor="cep">Rua:</label>
+          <input type="text" name="rua" id="rua" defaultValue={rua} />
+        </div>
+        <div className="summary-item">
+          <label htmlFor="bairro">Bairro:</label>
+          <input type="text" name="bairro" id="bairro" defaultValue={bairro} />
+        </div>
+        <div className="summary-item">
           <span>Entrega:</span>
-          <span>R$ {entrega}</span>
+          <span>R$ {custo}</span>
         </div>
         <hr
           style={{
@@ -68,7 +107,7 @@ const Cart = () => {
         />
         <div className="summary-item">
           <span style={{ fontWeight: "bold" }}>Total</span>
-          <span style={{ fontWeight: "bold" }}>R$ {subTotal + entrega}</span>
+          <span style={{ fontWeight: "bold" }}>R$ {subTotal + custo}</span>
         </div>
         <button className="checkout-button">Finalizar Compra</button>
       </div>
