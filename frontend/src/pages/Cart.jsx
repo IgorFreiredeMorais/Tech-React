@@ -39,10 +39,14 @@ const Cart = () => {
   const [expirationDate, setExpirationDate] = useState("");
   const [securityCode, setSecurityCode] = useState("");
   const [quantidades, setQuantidades] = useState({});
-  const subTotal = data.reduce(
-    (acc, cur) => acc + cur.price * (quantidades[cur.id] || cur.quantity || 0),
-    0
-  );
+  const subTotal = data
+    .reduce(
+      (acc, cur) =>
+        acc + cur.price * (quantidades[cur.id] || cur.quantity || 0),
+      0
+    )
+    .toFixed(2);
+  const total = (parseFloat(subTotal) + custo).toFixed(2);
   const isCreditCardSelected = paymentMethod === "creditCard";
   const isBoletoSelected = paymentMethod === "boleto";
 
@@ -198,7 +202,7 @@ const Cart = () => {
         <hr className="divider" />
         <div className="summary-item">
           <span className="total-label">Total:</span>
-          <span className="total-price">R$ {subTotal + custo}</span>
+          <span className="total-price">R$ {total}</span>
         </div>
 
         <button className="checkout-button" onClick={handleOpen}>
