@@ -6,6 +6,7 @@ import { BsFillCreditCard2FrontFill } from "react-icons/bs";
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 import InputMask from "react-input-mask";
 import { toast, ToastContainer } from "react-toastify";
+import { calcularFrete } from "../services/calcularFrete";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
@@ -111,7 +112,8 @@ const Cart = () => {
         setRua(data.logradouro);
         setBairro(data.bairro);
         setCidade(data.localidade);
-        setCusto(50);
+        console.log(data);
+        setCusto(calcularFrete(data.uf));
       });
   };
 
