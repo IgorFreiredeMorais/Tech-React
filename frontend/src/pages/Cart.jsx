@@ -7,6 +7,7 @@ import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 import InputMask from "react-input-mask";
 import { toast, ToastContainer } from "react-toastify";
 import { calcularFrete } from "../services/calcularFrete";
+import "../styles/cart.css";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
@@ -50,6 +51,7 @@ const Cart = () => {
   const total = (parseFloat(subTotal) + custo).toFixed(2);
   const isCreditCardSelected = paymentMethod === "creditCard";
   const isBoletoSelected = paymentMethod === "boleto";
+  const [isCepFilled, setIsCepFilled] = useState(false);
 
   const removeItem = (id) => {
     const arrFilter = data.filter((item) => item.id !== id);
@@ -106,15 +108,20 @@ const Cart = () => {
 
   const checkCep = () => {
     const cepAtt = cep.replace(/\D/g, "");
-    fetch(`https://viacep.com.br/ws/${cepAtt}/json/`)
-      .then((res) => res.json())
-      .then((data) => {
-        setRua(data.logradouro);
-        setBairro(data.bairro);
-        setCidade(data.localidade);
-        console.log(data);
-        setCusto(calcularFrete(data.uf));
-      });
+    if (cepAtt.length > 0) {
+      fetch(`https://viacep.com.br/ws/${cepAtt}/json/`)
+        .then((res) => res.json())
+        .then((data) => {
+          setRua(data.logradouro);
+          setBairro(data.bairro);
+          setCidade(data.localidade);
+          console.log(data);
+          setCusto(calcularFrete(data.uf));
+          setIsCepFilled(true); // Atualiza o estado para true quando o CEP é preenchido
+        });
+    } else {
+      setIsCepFilled(false); // Atualiza o estado para false quando o CEP é vazio
+    }
   };
 
   return (
@@ -207,8 +214,12 @@ const Cart = () => {
           <span className="total-price">R$ {total}</span>
         </div>
 
-        <button className="checkout-button" onClick={handleOpen}>
-          Finalizar Compra
+        <button
+          className={`checkout-button ${!isCepFilled ? "disabled" : ""}`}
+          onClick={handleOpen}
+          disabled={!isCepFilled} // Desabilita o botão quando o CEP não estiver preenchido
+        >
+          {isCepFilled ? "Finalizar Compra" : "Insira o CEP"}
         </button>
 
         <Modal open={open} onClose={handleClose}>

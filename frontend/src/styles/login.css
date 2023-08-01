@@ -204,8 +204,9 @@
     color: var(--color-dark-900);
 }
 
-.error-message {
+  .error-message {
+    display: block;
     color: red;
-    font-size: 12px;
-    margin-top: 5px;
+    font-size: 14px;
+    margin-top: 8px; /* Espaçamento entre o input e a mensagem de erro */
   }

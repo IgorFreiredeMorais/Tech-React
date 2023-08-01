@@ -11,33 +11,52 @@ import KeyIcon from "@mui/icons-material/Key";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const schema = yup.object().shape({
+  email: yup.string().email("Email inválido").required("Campo obrigatório"),
+  password: yup
+    .string()
+    .required("Campo obrigatório")
+    .min(4, "Mínimo de 4 caracteres"),
+});
 
 function Login() {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
   const [darkMode, setDarkMode] = useState(false);
+  const [type, setType] = useState("password");
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
-  const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [type, setType] = useState("password");
 
   const handleToggle = () => {
-    if (type === "password") {
-      setType("text");
-    } else {
-      setType("password");
-    }
+    setType((prevType) => (prevType === "password" ? "text" : "password"));
   };
 
-  const handleLogin = () => {
+  const { login } = useContext(AuthContext);
+
+  const handleLogin = (data) => {
+    const { email, password } = data;
     login(email, password);
   };
 
   return (
     <main id="container">
-      <form id="login_form" className={darkMode ? "dark" : ""}>
+      <form
+        id="login_form"
+        className={darkMode ? "dark" : ""}
+        onSubmit={handleSubmit(handleLogin)}
+      >
         <div id="form_header">
           <h1>Login</h1>
           <IconButton onClick={toggleDarkMode}>
@@ -78,23 +97,26 @@ function Login() {
               className={darkMode ? "white-icon" : "black-icon"}
             >
               Email
-              <div
-                className="input-field"
-                style={{
-                  marginBottom: "4vh",
-                }}
-              >
-                <EmailIcon className={darkMode ? "white-icon" : "black-icon"} />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  autoComplete="off"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
             </label>
+            <div className="input-field">
+              <EmailIcon className={darkMode ? "white-icon" : "black-icon"} />
+              <Controller
+                name="email"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <input
+                    type="email"
+                    id="email"
+                    {...field}
+                    autoComplete="off"
+                  />
+                )}
+              />
+            </div>
+            {errors.email && (
+              <span className="error-message">{errors.email.message}</span>
+            )}
           </div>
 
           <div className="input-box">
@@ -103,36 +125,36 @@ function Login() {
               className={darkMode ? "white-icon" : "black-icon"}
             >
               Password
-              <div className="input-field">
-                <KeyIcon className={darkMode ? "white-icon" : "black-icon"} />
-                <input
-                  type={type}
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="button" onClick={handleToggle}>
-                  {type === "password" ? (
-                    <VisibilityIcon
-                      className={darkMode ? "white-icon" : "black-icon"}
-                    />
-                  ) : (
-                    <VisibilityOffIcon
-                      className={darkMode ? "white-icon" : "black-icon"}
-                    />
-                  )}
-                </button>
-              </div>
             </label>
-
-            <div id="forgot_password">
-              <a href="#"></a>
+            <div className="input-field">
+              <KeyIcon className={darkMode ? "white-icon" : "black-icon"} />
+              <Controller
+                name="password"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <input type={type} id="password" {...field} />
+                )}
+              />
+              <button type="button" onClick={handleToggle}>
+                {type === "password" ? (
+                  <VisibilityIcon
+                    className={darkMode ? "white-icon" : "black-icon"}
+                  />
+                ) : (
+                  <VisibilityOffIcon
+                    className={darkMode ? "white-icon" : "black-icon"}
+                  />
+                )}
+              </button>
             </div>
+            {errors.password && (
+              <span className="error-message">{errors.password.message}</span>
+            )}
           </div>
         </div>
 
-        <button type="button" id="login_button" onClick={handleLogin}>
+        <button type="submit" id="login_button">
           Sign In
         </button>
       </form>
